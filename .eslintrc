@@ -1,0 +1,90 @@
+{
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "project": "./tsconfig.json",
+    "ecmaFeatures": {
+      "jsx": true
+    },
+    "warnOnUnsupportedTypeScriptVersion": true
+  },
+  "ignorePatterns": ["node_modules", "babel.config.js", "metro.config.js", "jest.config.js"],
+  "plugins": [
+    "@typescript-eslint",
+    "functional",
+    "prettier",
+    "header",
+    "import",
+    "eslint-plugin-tsdoc",
+    "eslint-plugin-jsdoc"
+  ],
+  "extends": [
+    "@react-native-community",
+    "plugin:functional/recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:import/typescript",
+    "plugin:prettier/recommended",
+    "plugin:@typescript-eslint/recommended-requiring-type-checking"
+  ],
+  "rules": {
+    // Disallow vairables defined but not consumed
+    "no-unused-vars": "error",
+    // Enforce exported functions have doc
+    "jsdoc/require-jsdoc": [
+      "error",
+      {
+        "publicOnly": true,
+        "require": {
+          "ArrowFunctionExpression": true,
+          "FunctionDeclaration": true,
+          "FunctionExpression": true,
+          "MethodDefinition": true
+        }
+      }
+    ],
+    // Enforce the doc on functions is valid TSDoc
+    "tsdoc/syntax": "error",
+
+    // Allow to use `void somePromise` on floating promises in hooks
+    "no-void": ["error", { "allowAsStatement": true }],
+
+    // Too strict. React properties often pass functions and objects
+    "functional/no-mixed-type": "off",
+    // Too strict. Functions in screens may diaptch actions and not require arguments
+    "functional/functional-parameters": [
+      "error",
+      {
+        "allowRestParameter": true,
+        "enforceParameterCount": false
+      }
+    ],
+    // Allow if statements that return early
+    "functional/no-conditional-statement": [
+      "error",
+      {
+        "allowReturningBranches": true
+      }
+    ],
+    // Too restrictive for react. Eg navigation
+    "functional/no-expression-statement": "off",
+    // Too restrictive for react. Eg on click actions that trigger navigation thus needing no return value
+    "functional/no-return-void": "off",
+    // Enforce immutable data with exception cases
+    "functional/immutable-data": [
+      "error",
+      {
+        // We use immer for reducers and therefore we allow mutation. We must prefix the variable with "mutable"
+        "ignorePattern": "^mutable",
+        // Allow mutation of useRef's "current" variable. We must suffix the variable with "Ref"
+        "ignoreAccessorPattern": "**.*Ref.current"
+      }
+    ],
+    // Prefer const enums for compile time optimisation https://www.typescriptlang.org/docs/handbook/enums.html#const-enums
+    "no-restricted-syntax": [
+      "error",
+      {
+        "selector": "TSEnumDeclaration:not([const=true])",
+        "message": "Don't declare non-const enums"
+      }
+    ]
+  }
+}

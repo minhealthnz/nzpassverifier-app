@@ -1,0 +1,1 @@
+export { TermsAndConditionsContainer } from "./TermsAndConditionsContainer";
