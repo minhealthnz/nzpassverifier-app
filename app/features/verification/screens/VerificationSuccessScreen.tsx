@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect } from "react";
+import React, { useMemo, useEffect, useCallback } from "react";
 import { StyleSheet, View, Platform } from "react-native";
 import {
   Button,
@@ -11,12 +11,14 @@ import {
   useWindowScale,
   WindowScaleFunctions,
   Text,
+  useAccessibilityFocus,
 } from "../../../common";
 import { useTranslation } from "react-i18next";
 import { ResultHeader, ProgressBar, PresentorDetails, PullDownTab, AutoDisabledScrollView } from "../components";
 import lottieValidImage from "../assets/valid.json";
 import { Edge } from "react-native-safe-area-context";
 import { DateStrings } from "../state";
+import { useFocusEffect } from "@react-navigation/native";
 
 export type ResultDetails = {
   readonly givenName: string;
@@ -57,12 +59,15 @@ export const VerificationSuccessScreen: React.FC<VerificationSuccessScreenProps>
   const { t } = useTranslation();
   const scalingFunctions = useWindowScale();
   const styles = useMemo(() => createStyles(scalingFunctions), [scalingFunctions]);
+  const isAndroid = Platform.OS === "android";
 
   // Don't include top safeArea on iOS as sheet modal is not completely fullscreen
-  const safeAreaEdges: readonly Edge[] | undefined = useMemo(
-    () => (Platform.OS === "ios" ? ["left", "right", "bottom"] : undefined),
-    []
-  );
+  const safeAreaEdges: readonly Edge[] | undefined = useMemo(() => (isAndroid ? undefined : ["bottom"]), [isAndroid]);
+
+  const [focusRef, setFocus] = useAccessibilityFocus();
+
+  const setFocusOnAndroid = useCallback(() => (isAndroid ? setFocus() : undefined), [isAndroid, setFocus]);
+  useFocusEffect(setFocusOnAndroid);
 
   useEffect(() => {
     onMount();
@@ -77,7 +82,7 @@ export const VerificationSuccessScreen: React.FC<VerificationSuccessScreenProps>
             <PullDownTab color={styles.pullDownTab.color} />
           </View>
           <View style={styles.topSpacer} />
-          <View style={styles.resultHeaderContainer}>
+          <View accessible={isAndroid} ref={focusRef} style={styles.resultHeaderContainer}>
             <ResultHeader
               title={t("verification:valid:title")}
               lottieImage={lottieValidImage}

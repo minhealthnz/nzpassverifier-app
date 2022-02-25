@@ -1,10 +1,11 @@
 import React, { useMemo } from "react";
-import { GestureResponderEvent, StyleSheet, TouchableOpacity } from "react-native";
+import { GestureResponderEvent, StyleSheet } from "react-native";
+import { GestureHandlerRootView, TouchableOpacity } from "react-native-gesture-handler";
 import { Icon } from "./Icon";
 import { themeTokens } from "../theme";
 
 export type IconButtonProps = {
-  readonly onPress: (event: GestureResponderEvent) => void;
+  readonly onPress: (event?: GestureResponderEvent) => void;
   readonly iconName: string;
   readonly size?: number;
   readonly color?: string;
@@ -22,15 +23,17 @@ export const IconButton: React.FC<IconButtonProps> = (props) => {
   const styles = useMemo(() => getStyles(color), [color]);
 
   return (
-    <TouchableOpacity
-      disabled={disabled}
-      onPress={onPress}
-      accessible={true}
-      accessibilityRole={"button"}
-      accessibilityLabel={accessibilityLabel}
-    >
-      <Icon name={iconName} style={[styles.icon]} size={size} />
-    </TouchableOpacity>
+    <GestureHandlerRootView>
+      <TouchableOpacity
+        disabled={disabled}
+        onPress={onPress}
+        accessible={true}
+        accessibilityRole={"button"}
+        accessibilityLabel={accessibilityLabel}
+      >
+        <Icon name={iconName} style={[styles.icon]} size={size} />
+      </TouchableOpacity>
+    </GestureHandlerRootView>
   );
 };
 

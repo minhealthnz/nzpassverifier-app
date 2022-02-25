@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useCallback, useMemo } from "react";
 import { StyleSheet, View, Platform } from "react-native";
 import {
   Button,
@@ -9,6 +9,7 @@ import {
   ScreenContainer,
   Text,
   themeTokens,
+  useAccessibilityFocus,
   useWindowScale,
   WindowScaleFunctions,
 } from "../../../common";
@@ -16,6 +17,7 @@ import { useTranslation } from "react-i18next";
 import { ResultHeader, ProgressBar, PullDownTab, AutoDisabledScrollView } from "../components";
 import lottieCannotReadImage from "../assets/cannotRead.json";
 import { Edge } from "react-native-safe-area-context";
+import { useFocusEffect } from "@react-navigation/native";
 
 export type VerificationCannotReadScreenProps = {
   readonly handlePressHome: () => void;
@@ -32,12 +34,15 @@ export const VerificationCannotReadScreen: React.FC<VerificationCannotReadScreen
   const { t } = useTranslation();
   const scalingFunctions = useWindowScale();
   const styles = useMemo(() => createStyles(scalingFunctions), [scalingFunctions]);
+  const isAndroid = Platform.OS === "android";
 
   // Don't include top safeArea on iOS as sheet modal is not completely fullscreen
-  const safeAreaEdges: readonly Edge[] | undefined = useMemo(
-    () => (Platform.OS === "ios" ? ["left", "right", "bottom"] : undefined),
-    []
-  );
+  const safeAreaEdges: readonly Edge[] | undefined = useMemo(() => (isAndroid ? undefined : ["bottom"]), [isAndroid]);
+
+  const [focusRef, setFocus] = useAccessibilityFocus();
+
+  const setFocusOnAndroid = useCallback(() => (isAndroid ? setFocus() : undefined), [isAndroid, setFocus]);
+  useFocusEffect(setFocusOnAndroid);
 
   return (
     <ScreenContainer safeAreaEdges={safeAreaEdges} isSensitiveView statusBarStyle={"light-content"}>
@@ -46,7 +51,7 @@ export const VerificationCannotReadScreen: React.FC<VerificationCannotReadScreen
           <PullDownTab color={styles.pullDownTab.color} />
         </View>
         <View style={styles.topSpacer} />
-        <View style={styles.resultHeaderContainer}>
+        <View accessible={isAndroid} ref={focusRef} style={styles.resultHeaderContainer}>
           <ResultHeader
             title={t("verification:cannotRead:title")}
             lottieImage={lottieCannotReadImage}

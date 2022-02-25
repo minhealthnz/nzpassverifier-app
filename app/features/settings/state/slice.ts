@@ -1,10 +1,11 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { doToggleCameraType, doToggleAudio } from "../actions";
+import { doToggleCameraType, doToggleAudio, doToggleVibration } from "../actions";
 import { SettingsState } from "./types";
 
 const initialState: SettingsState = {
   isFrontCamera: false,
   isAudioOn: false,
+  isVibrationOn: false,
 };
 
 const settingsSlice = createSlice({
@@ -17,6 +18,9 @@ const settingsSlice = createSlice({
     });
     builder.addCase(doToggleAudio.fulfilled, (mutableState, action) => {
       mutableState.isAudioOn = action.payload;
+    });
+    builder.addCase(doToggleVibration.fulfilled, (mutableState, action) => {
+      mutableState.isVibrationOn = action.payload;
     });
   },
 });

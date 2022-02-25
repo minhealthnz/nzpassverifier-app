@@ -23,8 +23,7 @@ export const doSetupApp = createAppAsyncThunk("setup/check", async (_options, th
 
   const navigateToInitialRoute = () => {
     const isOnBoardingComplete = thunkAPI.getState().onboarding.isComplete;
-    // Onboarding introduces switching between front and back camera, so don't show if switching camera feature is disabled.
-    if (config.FEATURE_FRONT_CAMERA_ENABLED && !isOnBoardingComplete) {
+    if (!isOnBoardingComplete) {
       return navigation.replace("Onboarding");
     }
     const { acceptedVersion } = thunkAPI.getState().termsAndConditions;

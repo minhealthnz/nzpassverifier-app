@@ -1,4 +1,4 @@
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, TouchableOpacity } from "react-native";
 import { Icon, IconName, Text, themeTokens, useWindowScale, WindowScaleFunctions } from "../../../common";
 import React, { useMemo } from "react";
 
@@ -16,12 +16,10 @@ export const ExternalLink: React.FC<ExternalLinkProps> = (props) => {
   const styles = useMemo(() => createStyles(scaleFunctions), [scaleFunctions]);
 
   return (
-    <View style={styles.linkRow}>
-      <Text accessibilityRole={"link"} style={[styles.linkText]} onPress={onPress}>
-        {children}
-      </Text>
-      <Icon style={[styles.linkIcon]} name={IconName.external} />
-    </View>
+    <TouchableOpacity accessible accessibilityRole={"link"} style={styles.linkRow} onPress={onPress}>
+      <Text style={[styles.linkText]}>{children}</Text>
+      <Icon accessible={false} style={[styles.linkIcon]} name={IconName.external} />
+    </TouchableOpacity>
   );
 };
 

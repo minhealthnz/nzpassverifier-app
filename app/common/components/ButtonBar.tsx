@@ -55,6 +55,7 @@ const createStyles = (scalingFunctions: WindowScaleFunctions) => {
   const { scaleVertical, scaleHorizontal } = scalingFunctions;
   return StyleSheet.create({
     wrapper: {
+      backgroundColor: themeTokens.color.base.white.value,
       width: "100%",
       justifyContent: "center",
       alignItems: "center",

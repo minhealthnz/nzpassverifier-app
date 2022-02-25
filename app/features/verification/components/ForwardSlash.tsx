@@ -1,10 +1,13 @@
 import * as React from "react";
-import Svg, { Path, SvgProps } from "react-native-svg";
+import { useMemo } from "react";
+import { View } from "react-native";
+import Svg, { Path } from "react-native-svg";
 import { useWindowScale } from "../../../common";
 
-export type ForwardSlashProps = SvgProps & {
+export type ForwardSlashProps = {
   readonly height: number;
   readonly width: number;
+  readonly paddingHorizontal: number;
 };
 
 /**
@@ -20,9 +23,13 @@ export const ForwardSlash: React.FC<ForwardSlashProps> = (props) => {
 
   const pathString = `M${svgWidth - 0.5} 0.5 1 ${svgHeight - 0.5}`;
 
+  const style = useMemo(() => ({ paddingHorizontal: props.paddingHorizontal }), [props.paddingHorizontal]);
+
   return (
-    <Svg {...props} width={svgWidth} height={svgHeight} fill="none">
-      <Path stroke="#B3B3B3" d={pathString} />
-    </Svg>
+    <View style={style}>
+      <Svg width={svgWidth} height={svgHeight} fill="none">
+        <Path stroke="#B3B3B3" d={pathString} />
+      </Svg>
+    </View>
   );
 };

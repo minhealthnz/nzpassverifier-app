@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, useState } from "react";
 import { StyleSheet, Text, Animated, Easing } from "react-native";
-import { createConditionalStyle, themeTokens } from "../../../common";
+import { createConditionalStyle, themeTokens, useAccessibilityFocus } from "../../../common";
 import { useFocusEffect } from "@react-navigation/native";
 import { AnimatedTouchableWithoutFeedback } from "./AnimatedTouchableWithoutFeedback";
 
@@ -27,6 +27,9 @@ const beaconAnimationDelay = 3000;
  */
 export const ScanButton: React.FC<ScanButtonProps> = (props) => {
   const { title, onPress, accessibilityHint, accessibilityLabel } = props;
+  const [focusRef, setFocus] = useAccessibilityFocus();
+
+  useFocusEffect(setFocus);
 
   const [isActive, setIsActive] = useState(false);
 
@@ -151,12 +154,15 @@ export const ScanButton: React.FC<ScanButtonProps> = (props) => {
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
         onPress={handlePress}
+        ref={focusRef}
         accessible={true}
         accessibilityLabel={accessibilityLabel}
         accessibilityHint={accessibilityHint}
         accessibilityRole={"button"}
       >
-        <Text style={styles.scanText}>{title}</Text>
+        <Text style={styles.scanText} allowFontScaling={false}>
+          {title}
+        </Text>
       </AnimatedTouchableWithoutFeedback>
       {beaconOverlay}
     </Animated.View>

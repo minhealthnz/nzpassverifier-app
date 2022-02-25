@@ -66,6 +66,8 @@ export type VerificationResultValid = {
 export type VerificationResultInvalid = {
   readonly status: VerificationStatus.Invalid;
   readonly failureReason: InvalidReason;
+  readonly expiry?: DateStrings;
+  readonly expiredDuration?: number;
 };
 
 export type VerificationResultCannotRead = {

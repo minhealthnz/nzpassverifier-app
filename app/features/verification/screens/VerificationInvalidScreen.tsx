@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useCallback, useMemo } from "react";
 import { StyleSheet, View, Platform } from "react-native";
 import {
   Button,
@@ -8,20 +8,32 @@ import {
   IconName,
   ScreenContainer,
   Text,
+  TextProps,
   themeTokens,
   WindowScaleFunctions,
   useWindowScale,
+  useAccessibilityFocus,
 } from "../../../common";
-import { InvalidReason } from "../state";
+import { DateStrings, InvalidReason } from "../state";
 import { useTranslation } from "react-i18next";
-import { ResultHeader, ProgressBar, PullDownTab, AutoDisabledScrollView } from "../components";
+import {
+  ResultHeader,
+  ProgressBar,
+  PullDownTab,
+  AutoDisabledScrollView,
+  DateWithSlashes,
+  ForwardSlashProps,
+} from "../components";
 import lottieInvalidImage from "../assets/invalid.json";
 import { Edge } from "react-native-safe-area-context";
+import { useFocusEffect } from "@react-navigation/native";
 
 export type VerificationInvalidScreenProps = {
   readonly handlePressHome: () => void;
   readonly handlePressScanAgain: () => void;
   readonly failureReason: InvalidReason;
+  readonly expiryDate?: DateStrings;
+  readonly expiredDuration?: number;
 };
 
 /**
@@ -30,15 +42,32 @@ export type VerificationInvalidScreenProps = {
  * @param props - {@link VerificationInvalidScreenProps}
  */
 export const VerificationInvalidScreen: React.FC<VerificationInvalidScreenProps> = (props) => {
-  const { handlePressHome, handlePressScanAgain, failureReason } = props;
+  const { handlePressHome, handlePressScanAgain, failureReason, expiryDate, expiredDuration } = props;
   const { t } = useTranslation();
   const scalingFunctions = useWindowScale();
   const styles = useMemo(() => createStyles(scalingFunctions), [scalingFunctions]);
+  const isAndroid = Platform.OS === "android";
   // Don't include top safeArea on iOS as sheet modal is not completely fullscreen
-  const safeAreaEdges: readonly Edge[] | undefined = useMemo(
-    () => (Platform.OS === "ios" ? ["left", "right", "bottom"] : undefined),
-    []
-  );
+  const safeAreaEdges: readonly Edge[] | undefined = useMemo(() => (isAndroid ? undefined : ["bottom"]), [isAndroid]);
+  const [focusRef, setFocus] = useAccessibilityFocus();
+
+  const setFocusOnAndroid = useCallback(() => (isAndroid ? setFocus() : undefined), [isAndroid, setFocus]);
+  useFocusEffect(setFocusOnAndroid);
+
+  const renderDaysSinceExpiry = (expiredDays: number) => {
+    const roundedDays = Math.floor(expiredDays).toLocaleString();
+
+    const textToShow =
+      expiredDays > 1
+        ? `${roundedDays} ${t("verification:presentorDetail:daysAgo")}`
+        : t("verification:presentorDetail:expiredToday");
+
+    return (
+      <Text variant={"detail"} accessibilityLabel={t("verification:accessibility:expiredDays")}>
+        {textToShow}
+      </Text>
+    );
+  };
 
   const failureReasonText = useMemo(() => {
     switch (failureReason) {
@@ -61,7 +90,7 @@ export const VerificationInvalidScreen: React.FC<VerificationInvalidScreenProps>
           <PullDownTab color={styles.pullDownTab.color} />
         </View>
         <View style={styles.topSpacer} />
-        <View style={styles.resultHeaderContainer}>
+        <View accessible={isAndroid} ref={focusRef} style={styles.resultHeaderContainer}>
           <ResultHeader
             title={t("verification:invalid:title")}
             lottieImage={lottieInvalidImage}
@@ -74,6 +103,16 @@ export const VerificationInvalidScreen: React.FC<VerificationInvalidScreenProps>
           <Text variant={"broadcast"} style={styles.description}>
             {t(failureReasonText)}
           </Text>
+          {expiryDate && (
+            <View>
+              <HorizontalRule style={styles.insideHorizontalRule} />
+              <View style={styles.itemSpacer} />
+              <Text variant={"label"}>{t("verification:presentorDetail:certificateExpiryDate")}</Text>
+              <DateWithSlashes dateStrings={expiryDate} textProps={expiryTextProps} slashProps={expirySlashProps} />
+              {expiredDuration && renderDaysSinceExpiry(expiredDuration)}
+              <View style={styles.itemSpacer} />
+            </View>
+          )}
         </AutoDisabledScrollView>
         <HorizontalRule style={styles.horizontalRule} />
         <ButtonBar direction={"row"}>
@@ -93,6 +132,20 @@ export const VerificationInvalidScreen: React.FC<VerificationInvalidScreenProps>
   );
 };
 
+const expiryTextProps: TextProps = {
+  variant: "h1",
+  style: {
+    paddingTop: themeTokens.spacing.vertical.small.value,
+    paddingBottom: themeTokens.spacing.vertical.small.value,
+  },
+};
+
+const expirySlashProps: ForwardSlashProps = {
+  width: 9,
+  height: 26,
+  paddingHorizontal: themeTokens.spacing.vertical.small.value + themeTokens.spacing.vertical.tiny.value,
+};
+
 const createStyles = (scalingFunctions: WindowScaleFunctions) => {
   const { spacing, color } = themeTokens;
   const { scaleVertical, scaleHorizontal } = scalingFunctions;
@@ -104,6 +157,7 @@ const createStyles = (scalingFunctions: WindowScaleFunctions) => {
       },
       scrollContentContainer: {
         flexGrow: 1,
+        paddingHorizontal: scaleHorizontal(spacing.horizontal.xl.value),
       },
       topSpacer: {
         height: scaleVertical(spacing.vertical.xxl.value + spacing.vertical.large.value),
@@ -126,10 +180,16 @@ const createStyles = (scalingFunctions: WindowScaleFunctions) => {
       },
       description: {
         paddingVertical: scaleVertical(spacing.vertical.xl.value),
-        paddingHorizontal: scaleHorizontal(spacing.horizontal.xl.value),
+        paddingBottom: scaleVertical(spacing.vertical.large.value),
       },
       horizontalRule: {
         marginTop: scaleVertical(spacing.vertical.large.value),
+      },
+      insideHorizontalRule: {
+        height: 1,
+      },
+      itemSpacer: {
+        height: themeTokens.spacing.vertical.large.value,
       },
     }),
     pullDownTab: {

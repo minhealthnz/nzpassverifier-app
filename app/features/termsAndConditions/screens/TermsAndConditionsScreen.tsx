@@ -55,7 +55,7 @@ export const TermsAndConditionsScreen: React.FC<TermsAndConditionsScreenProps> =
       t("termsAndConditions:bodyBulletPoints", { returnObjects: true })
     );
     const bulletPointRows = bulletPointTranslations.map((translatedBulletPoint, index) => (
-      <View style={[styles.bodyText, styles.bulletPointRow]} key={`bulletPoint-${index}`}>
+      <View style={[styles.bulletPointRow]} key={`bulletPoint-${index}`}>
         <Text>{"\u2022"}</Text>
         <Text style={styles.bulletPointText}>{`${translatedBulletPoint}`}</Text>
       </View>
@@ -127,10 +127,10 @@ const createStyles = (scalingFunctions: WindowScaleFunctions) => {
     },
     content: {
       alignItems: "center",
+      paddingHorizontal: scaleHorizontal(themeTokens.spacing.horizontal.xxl.value),
     },
     bodyText: {
       textAlign: "left",
-      paddingHorizontal: scaleHorizontal(themeTokens.spacing.horizontal.xxl.value),
     },
     linkText: {
       textDecorationLine: "underline",
@@ -144,6 +144,7 @@ const createStyles = (scalingFunctions: WindowScaleFunctions) => {
       paddingTop: scaleVertical(themeTokens.spacing.vertical.xl.value),
     },
     bulletPointRow: {
+      textAlign: "left",
       maxWidth: "100%",
       flexDirection: "row",
       paddingTop: scaleVertical(themeTokens.spacing.horizontal.small.value),

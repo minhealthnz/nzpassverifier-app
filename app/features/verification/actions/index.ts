@@ -1,4 +1,12 @@
-import { createAppAsyncThunk, createAppAction, navigation, Audios, audioService } from "../../../common";
+import {
+  createAppAsyncThunk,
+  createAppAction,
+  navigation,
+  Audios,
+  audioService,
+  vibrationService,
+  VibrationType,
+} from "../../../common";
 import { buildIssuerCacheFromStore } from "../../issuerCaching";
 import { VerificationResult, VerificationStatus } from "../state";
 import { verificationService } from "../services";
@@ -33,27 +41,32 @@ export const doVerifyPayload = createAppAsyncThunk<void, string>("verification/v
   void thunkAPI.dispatch(doRecordAnalyticsScanEvent({ ...result, processedInMs }));
 
   const isAudioOn = thunkAPI.getState().settings.isAudioOn;
+  const isVibrationOn = thunkAPI.getState().settings.isVibrationOn;
 
   // TODO(DEBT-011): handle results in the container which reacts to redux state changes
   switch (result.status) {
     case VerificationStatus.Valid: {
       navigation.replace("VerificationSuccess");
       isAudioOn && audioService.playSound(Audios.VALID);
+      isVibrationOn && vibrationService.vibrate(VibrationType.VALID);
       return;
     }
     case VerificationStatus.Invalid: {
       navigation.replace("VerificationInvalid");
       isAudioOn && audioService.playSound(Audios.INVALID);
+      isVibrationOn && vibrationService.vibrate(VibrationType.INVALID);
       return;
     }
     case VerificationStatus.CannotRead: {
       navigation.replace("VerificationCannotRead");
       isAudioOn && audioService.playSound(Audios.INVALID);
+      isVibrationOn && vibrationService.vibrate(VibrationType.INVALID);
       return;
     }
     case VerificationStatus.CannotValidate: {
       navigation.replace("VerificationCannotValidate");
       isAudioOn && audioService.playSound(Audios.INVALID);
+      isVibrationOn && vibrationService.vibrate(VibrationType.INVALID);
       return;
     }
   }

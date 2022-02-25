@@ -1,6 +1,5 @@
 import { DateStrings } from "../state";
-
-const twoDigitDayOrMonth = (val: number): string => (val < 10 ? `0${val}` : `${val}`);
+import { format } from "date-fns";
 
 /**
  * Converts date into strings to be rendered, making sure day/month is double digit
@@ -9,8 +8,8 @@ const twoDigitDayOrMonth = (val: number): string => (val < 10 ? `0${val}` : `${v
  */
 export const getDateStrings = (date: Date): DateStrings => {
   return {
-    day: twoDigitDayOrMonth(date.getDate()),
-    month: twoDigitDayOrMonth(date.getMonth() + 1), // month is returned as 0-based
-    year: `${date.getFullYear()}`,
+    day: format(date, "dd"),
+    month: format(date, "MM"),
+    year: format(date, "yyyy"),
   };
 };

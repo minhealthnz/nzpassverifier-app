@@ -21,7 +21,6 @@ import {
   ISSUER_CACHE_REFRESH_MIN_AGE_MS,
   ISSUER_RESOLUTION_REQUEST_TIMEOUT_MS,
 } from "@env";
-import { Platform } from "react-native";
 
 const parseBoolean = (v: string): boolean => {
   return /^true$/i.test(v);
@@ -56,7 +55,4 @@ export const config = {
   AWS_COGNITO_IDENTITY_POOL_REGION,
   AWS_PINPOINT_APPLICATION_ID,
   AWS_PINPOINT_REGION,
-
-  // TODO(DEBT-010): Remove feature flag once front camera is included in Android
-  FEATURE_FRONT_CAMERA_ENABLED: Platform.OS === "ios",
 };

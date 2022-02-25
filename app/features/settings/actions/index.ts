@@ -1,4 +1,11 @@
-import { Audios, audioService, createAppAction, createAppAsyncThunk } from "../../../common";
+import {
+  Audios,
+  audioService,
+  createAppAction,
+  createAppAsyncThunk,
+  vibrationService,
+  VibrationType,
+} from "../../../common";
 
 /**
  * Action that toggles the camera type
@@ -13,4 +20,13 @@ export const doToggleAudio = createAppAsyncThunk<boolean>("settings/doToggleAudi
   const newIsAudioOn = !thunkAPI.getState().settings.isAudioOn;
   newIsAudioOn && audioService.playSound(Audios.ACTIVATED);
   return newIsAudioOn;
+});
+
+/**
+ * Action that toggles the vibration on/off
+ */
+export const doToggleVibration = createAppAsyncThunk<boolean>("settings/doToggleVibration", (options, thunkAPI) => {
+  const newIsVibrationOn = !thunkAPI.getState().settings.isVibrationOn;
+  newIsVibrationOn && vibrationService.vibrate(VibrationType.VALID);
+  return newIsVibrationOn;
 });

@@ -2,7 +2,7 @@ export const strings = {
   en: {
     onboarding: {
       instruction1: {
-        body: "Scanning is now easier with options to use flash, forward- and backward-facing cameras, and sound indicators.",
+        body: "Scanning is easy with options to use forward and backward-facing cameras – as well as flash, sound, and vibration toggles.",
         title: "On-screen controls",
       },
       instruction2: {

@@ -43,7 +43,9 @@ const playSound = (audioName: Audios): void => {
 
   // Always play from start incase it was left mid-way before
   validSound.stop(() => {
-    validSound.play();
+    validSound.play(() => {
+      return;
+    });
   });
 };
 

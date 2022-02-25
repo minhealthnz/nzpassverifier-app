@@ -34,20 +34,29 @@ export type VerifyResultDetails = {
 const mapSdkError = (sdkVerifyResult: VerifyError): VerificationFailureResult => {
   switch (sdkVerifyResult.type) {
     case VerifyErrorType.NetworkError:
+    case VerifyErrorType.TimeoutError:
       return { status: VerificationStatus.CannotValidate };
-    // TODO(DEBT-009): Map SDK `UnknownError` error to the desired status
     case VerifyErrorType.UnknownError:
-      return { status: VerificationStatus.CannotValidate };
+      return { status: VerificationStatus.CannotRead };
   }
 };
 
-const mapVerifiedFail = (sdkVerifyResult: VerifyResponse): VerificationFailureResult => {
+const mapVerifiedFail = (
+  sdkVerifyResult: VerifyResponse,
+  expiryString: DateStrings,
+  expiredDuration: number
+): VerificationFailureResult => {
   switch (sdkVerifyResult.reason?.type) {
     case VerifyFailureReasonType.PayloadInvalid:
     case VerifyFailureReasonType.UnsupportedAlgorithm:
       return { status: VerificationStatus.CannotRead };
     case VerifyFailureReasonType.Expired:
-      return { status: VerificationStatus.Invalid, failureReason: InvalidReason.CredentialExpired };
+      return {
+        status: VerificationStatus.Invalid,
+        failureReason: InvalidReason.CredentialExpired,
+        expiry: expiryString,
+        expiredDuration: expiredDuration,
+      };
     case VerifyFailureReasonType.IssuerNotTrusted:
       return { status: VerificationStatus.Invalid, failureReason: InvalidReason.IssuerNotTrusted };
     case VerifyFailureReasonType.IssuerPublicKeyInvalid:
@@ -155,9 +164,18 @@ const verify = async (options: VerifyOptions): Promise<VerificationResult> => {
     return mapSdkError(sdkVerifyResult.error);
   }
 
+  const expiry = sdkVerifyResult.value.payload?.exp;
+  if (!expiry) {
+    return { status: VerificationStatus.Invalid, failureReason: InvalidReason.CredentialExpired };
+  }
+
+  const expiryDate = fromUnixTime(expiry);
+  const expiryDateStrings = getDateStrings(expiryDate);
+  const daysDiffToNow = Math.abs(new Date().getTime() - expiryDate.getTime()) / (1000 * 60 * 60 * 24);
+
   // Handle verify failure
   if (!sdkVerifyResult.value.verified) {
-    return mapVerifiedFail(sdkVerifyResult.value);
+    return mapVerifiedFail(sdkVerifyResult.value, expiryDateStrings, daysDiffToNow);
   }
 
   // Verify credential details
@@ -166,14 +184,9 @@ const verify = async (options: VerifyOptions): Promise<VerificationResult> => {
     return parsePayloadDetailsResult.error;
   }
 
-  const expiry = sdkVerifyResult.value.payload?.exp;
-  if (!expiry) {
-    return { status: VerificationStatus.Invalid, failureReason: InvalidReason.CredentialExpired };
-  }
-
   return {
     status: VerificationStatus.Valid,
-    details: { ...parsePayloadDetailsResult.value, expiry: getDateStrings(fromUnixTime(expiry)) },
+    details: { ...parsePayloadDetailsResult.value, expiry: expiryDateStrings },
   };
 };
 

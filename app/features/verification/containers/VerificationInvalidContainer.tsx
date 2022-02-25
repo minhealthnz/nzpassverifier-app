@@ -20,6 +20,8 @@ export const VerificationInvalidContainer: React.FC = () => {
     handlePressHome: () => appDispatch(doCloseVerificationResult({ navigateHome: true })),
     handlePressScanAgain: () => appDispatch(doCloseVerificationResult({ navigateHome: false })),
     failureReason: verifyResult.failureReason,
+    expiryDate: verifyResult.expiry,
+    expiredDuration: verifyResult.expiredDuration,
   };
 
   return (
@@ -27,6 +29,8 @@ export const VerificationInvalidContainer: React.FC = () => {
       handlePressScanAgain={screenProps.handlePressScanAgain}
       handlePressHome={screenProps.handlePressHome}
       failureReason={screenProps.failureReason}
+      expiryDate={screenProps.expiryDate}
+      expiredDuration={screenProps.expiredDuration}
     />
   );
 };

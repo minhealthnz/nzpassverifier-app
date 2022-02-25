@@ -5,7 +5,7 @@ import { doCancelScan, doRequestPermissions, doScan, doOpenOsSettings, doDisable
 import { InteractionManager } from "react-native";
 import { unwrapResult } from "@reduxjs/toolkit";
 import { ScanScreenStatus } from "../screens/ScanScreen";
-import { doToggleAudio, doToggleCameraType } from "../../settings/actions";
+import { doToggleAudio, doToggleCameraType, doToggleVibration } from "../../settings/actions";
 
 /**
  * Container for the {@link ScanScreen}
@@ -15,6 +15,7 @@ export const ScanContainer: React.FC = () => {
   const [screenCameraState, setScreenCameraState] = useState<ScanScreenStatus>("loading");
   const isFrontCamera = useAppSelector((state) => state.settings.isFrontCamera);
   const isAudioOn = useAppSelector((state) => state.settings.isAudioOn);
+  const isVibrationOn = useAppSelector((state) => state.settings.isVibrationOn);
   const isFrontCameraAlertDisabled = useAppSelector((state) => state.scanning.isFrontCameraAlertDisabled);
 
   const handleScanQrCode = (payload: string) => appDispatch(doScan(payload));
@@ -22,6 +23,7 @@ export const ScanContainer: React.FC = () => {
   const handleCancel = () => appDispatch(doCancelScan());
   const handleToggleCameraType = () => appDispatch(doToggleCameraType());
   const handleToggleAudio = () => appDispatch(doToggleAudio());
+  const handleToggleVibration = () => appDispatch(doToggleVibration());
   const handleDontShowFrontCameraAlert = useCallback(() => appDispatch(doDisableFrontCameraAlerts()), [appDispatch]);
 
   /**
@@ -50,6 +52,8 @@ export const ScanContainer: React.FC = () => {
       handleToggleCameraType={handleToggleCameraType}
       isAudioOn={isAudioOn}
       handleToggleAudio={handleToggleAudio}
+      isVibrationOn={isVibrationOn}
+      handleToggleVibration={handleToggleVibration}
       handleDontShowFrontCameraAlert={handleDontShowFrontCameraAlert}
       showFrontCameraAlert={isFrontCamera && !isFrontCameraAlertDisabled}
     />

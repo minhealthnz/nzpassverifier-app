@@ -21,7 +21,8 @@ export const strings = {
       },
       cannotValidate: {
         title: "Cannot validate",
-        description: "Please connect to the internet and scan again.\n\nThe app needs to update its data.",
+        description:
+          "This My Vaccine Pass can’t be verified because you haven’t connected to the internet and the app’s offline data is out of date. Please connect to the internet to continue scanning passes.",
       },
       presentorDetail: {
         ddmmyyyy: "dd / mm / yyyy",
@@ -29,11 +30,14 @@ export const strings = {
         familyName: "Last name",
         firstNames: "First name(s)",
         certificateExpiryDate: "Pass expiry date",
+        daysAgo: "days ago",
+        expiredToday: "Expired today",
       },
       accessibility: {
         ddmmyyy: "day month year",
         firstNames: "first names",
         remainingDays: "days remaining until expiry",
+        expiredDays: "days since expiry",
       },
       progress: {
         cancel: "Cancel",

@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useCallback, useMemo } from "react";
 import { StyleSheet, View, Platform } from "react-native";
 import { useTranslation } from "react-i18next";
 import {
@@ -12,10 +12,12 @@ import {
   Text,
   WindowScaleFunctions,
   useWindowScale,
+  useAccessibilityFocus,
 } from "../../../common";
 import { ResultHeader, ProgressBar, PullDownTab, AutoDisabledScrollView } from "../components";
 import lottieCannotValidateImage from "../assets/cannotValidate.json";
 import { Edge } from "react-native-safe-area-context";
+import { useFocusEffect } from "@react-navigation/native";
 
 export type VerificationCannotValidateScreenProps = {
   readonly handlePressHome: () => void;
@@ -32,11 +34,13 @@ export const VerificationCannotValidateScreen: React.FC<VerificationCannotValida
   const { t } = useTranslation();
   const scalingFunctions = useWindowScale();
   const styles = useMemo(() => createStyles(scalingFunctions), [scalingFunctions]);
+  const isAndroid = Platform.OS === "android";
   // Don't include top safeArea on iOS as sheet modal is not completely fullscreen
-  const safeAreaEdges: readonly Edge[] | undefined = useMemo(
-    () => (Platform.OS === "ios" ? ["left", "right", "bottom"] : undefined),
-    []
-  );
+  const safeAreaEdges: readonly Edge[] | undefined = useMemo(() => (isAndroid ? undefined : ["bottom"]), [isAndroid]);
+  const [focusRef, setFocus] = useAccessibilityFocus();
+
+  const setFocusOnAndroid = useCallback(() => (isAndroid ? setFocus() : undefined), [isAndroid, setFocus]);
+  useFocusEffect(setFocusOnAndroid);
 
   return (
     <ScreenContainer safeAreaEdges={safeAreaEdges} isSensitiveView statusBarStyle={"light-content"}>
@@ -45,7 +49,7 @@ export const VerificationCannotValidateScreen: React.FC<VerificationCannotValida
           <PullDownTab color={styles.pullDownTab.color} />
         </View>
         <View style={styles.topSpacer} />
-        <View style={styles.resultHeaderContainer}>
+        <View accessible={isAndroid} ref={focusRef} style={styles.resultHeaderContainer}>
           <ResultHeader
             title={t("verification:cannotValidate:title")}
             lottieImage={lottieCannotValidateImage}

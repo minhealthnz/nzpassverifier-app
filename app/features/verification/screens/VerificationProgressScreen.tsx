@@ -27,7 +27,7 @@ export const VerificationProgressScreen: React.FC<VerificationProgressScreenProp
 
   // Don't include top safeArea on iOS as sheet modal is not completely fullscreen
   const safeAreaEdges: readonly Edge[] | undefined = useMemo(
-    () => (Platform.OS === "ios" ? ["left", "right", "bottom"] : undefined),
+    () => (Platform.OS === "ios" ? ["bottom"] : undefined),
     []
   );
 

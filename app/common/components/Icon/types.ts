@@ -10,4 +10,6 @@ export const enum IconName {
   cameraFlipSecondary = "cameraflip-secondary",
   audioOnSecondary = "audio-on-secondary",
   audioOffPrimary = "audio-off-primary-reverse",
+  hapticsOnPrimary = "haptics-primary-reverse",
+  hapticsOffSecondary = "haptics-secondary",
 }

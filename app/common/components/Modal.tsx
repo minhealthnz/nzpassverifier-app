@@ -29,7 +29,12 @@ export const Modal: React.FC<ModalProps> = (props) => {
   const { t } = useTranslation();
 
   return (
-    <ReactNativeModal transparent={true} visible={visible} animationType={"slide"}>
+    <ReactNativeModal
+      transparent={true}
+      visible={visible}
+      animationType={"slide"}
+      supportedOrientations={["portrait", "landscape"]}
+    >
       <SafeAreaView>
         <View style={styles.wrapper}>
           <View style={styles.card}>

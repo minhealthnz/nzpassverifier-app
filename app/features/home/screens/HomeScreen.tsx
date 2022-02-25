@@ -1,27 +1,27 @@
 import React, { useMemo } from "react";
-import { Trans, useTranslation } from "react-i18next";
-import { StyleSheet, View } from "react-native";
+import { useTranslation } from "react-i18next";
+import { Platform, StyleSheet, View } from "react-native";
 import {
   Button,
   ButtonBar,
   HorizontalRule,
   IconName,
   ScreenContainer,
-  Text,
   themeTokens,
   useWindowScale,
   WindowScaleFunctions,
 } from "../../../common";
 import { ExternalLink, ScanButton } from "../components";
 import { ScrollView } from "react-native-gesture-handler";
-import { format } from "date-fns";
+import { OfflineRecordsStatus } from "../components/OfflineRecordsStatus";
+import { Edge } from "react-native-safe-area-context";
+import { CacheStatusDetails } from "../utilities";
 
 export type HomeScreenProps = {
   readonly handlePressScan: () => void;
   readonly handlePressHelp: () => void;
-  readonly handlePressCacheHelp: () => void;
   readonly handlePressPrivacyPolicy: () => void;
-  readonly lastCacheUpdate: number | undefined;
+  readonly cacheStatusDetails: CacheStatusDetails;
 };
 
 /**
@@ -30,17 +30,14 @@ export type HomeScreenProps = {
  * @param props - {@link HomeScreenProps}
  */
 export const HomeScreen: React.FC<HomeScreenProps> = (props) => {
-  const { handlePressScan, handlePressHelp, handlePressCacheHelp, handlePressPrivacyPolicy, lastCacheUpdate } = props;
+  const { handlePressScan, handlePressHelp, handlePressPrivacyPolicy, cacheStatusDetails } = props;
   const { t } = useTranslation();
   const scaleFunctions = useWindowScale();
   const styles = useMemo(() => createStyles(scaleFunctions), [scaleFunctions]);
+  const safeAreaEdges: readonly Edge[] | undefined = Platform.OS === "ios" ? ["top", "bottom"] : undefined;
 
-  const lastUpdatedDate = useMemo(
-    () => (lastCacheUpdate ? format(lastCacheUpdate, "d MMM yy") : t("home:neverUpdated")),
-    [lastCacheUpdate, t]
-  );
   return (
-    <ScreenContainer>
+    <ScreenContainer safeAreaEdges={safeAreaEdges}>
       <View style={styles.container}>
         <ScrollView
           style={styles.scrollView}
@@ -53,11 +50,8 @@ export const HomeScreen: React.FC<HomeScreenProps> = (props) => {
           <View style={styles.scanButtonWrapper}>
             <ScanButton onPress={handlePressScan} title={t("home:scan")} accessibilityLabel={t("home:scan")} />
           </View>
-          <View style={styles.textContainer}>
-            <Text style={styles.text}>
-              <Trans i18nKey="home:lastUpdate" components={{ date: lastUpdatedDate }} />
-            </Text>
-            <ExternalLink onPress={handlePressCacheHelp}>{t("home:lastUpdateHelp")}</ExternalLink>
+          <View style={styles.offlineRecordsContainer}>
+            <OfflineRecordsStatus cacheStatusDetails={cacheStatusDetails} />
           </View>
         </ScrollView>
         <HorizontalRule style={styles.horizontalRule} />
@@ -95,19 +89,14 @@ const createStyles = ({ scaleVertical, scaleHorizontal }: WindowScaleFunctions) 
       justifyContent: "center",
       paddingBottom: scaleVertical(themeTokens.spacing.vertical.large.value),
     },
-    textContainer: {
-      alignItems: "center",
-      paddingBottom: scaleVertical(themeTokens.spacing.vertical.xl.value),
-    },
     privacyLinkWrapper: {
       alignItems: "flex-end",
       width: "100%",
       paddingTop: scaleHorizontal(themeTokens.spacing.vertical.xl.value),
       paddingHorizontal: scaleHorizontal(themeTokens.spacing.horizontal.xl.value),
     },
-    text: {
-      textAlign: "center",
-      paddingBottom: scaleVertical(themeTokens.spacing.vertical.large.value),
+    offlineRecordsContainer: {
+      paddingHorizontal: scaleHorizontal(themeTokens.spacing.horizontal.xl.value),
     },
     horizontalRule: {
       marginTop: scaleVertical(themeTokens.spacing.vertical.large.value),
